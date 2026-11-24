@@ -22,7 +22,7 @@ COPY --from=css /src/src/Opten.Web/wwwroot/css/site.css ./src/Opten.Web/wwwroot/
 RUN dotnet publish src/Opten.Web/Opten.Web.csproj -c Release --no-restore -p:SkipTailwind=true -o /app/publish
 
 # 3) Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:11.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 
