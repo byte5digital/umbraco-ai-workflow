@@ -43,26 +43,30 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 2
 
-      - name: Claude Code security review
-        id: review
-        if: steps.key.outputs.present == 'true'
-        uses: anthropics/claude-code-security-review@main
-        with:
-          claude-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
-          claude-model: claude-sonnet-5-5
-          comment-pr: true
-          upload-results: true
-          exclude-directories: node_modules,docs,src/Opten.Web/wwwroot/css,src/Opten.Web/SeedData
-          custom-security-scan-instructions: .github/security-review-instructions.md
-
-      # The issue script runs with issues:write – take it from the base branch, never from the PR under review.
-      - name: Checkout trusted scripts (base branch)
+      # Review rules and the issue script come from the base branch, never from the PR under review:
+      # a PR must not be able to weaken its own review or run code with issues:write.
+      - name: Checkout trusted rules and scripts (base branch)
         if: steps.key.outputs.present == 'true'
         uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: _trusted
-          sparse-checkout: .github/scripts
+          sparse-checkout: |
+            .github/scripts
+            .github/security-review-instructions.md
+          sparse-checkout-cone-mode: false
+
+      - name: Claude Code security review
+        id: review
+        if: steps.key.outputs.present == 'true'
+        uses: anthropics/claude-code-security-review@0c6a49f1fa56a1d472575da86a94dbc1edb78eda # main @ 2026-11-24 – no release tags upstream, bump the SHA manually after review
+        with:
+          claude-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude-model: claude-sonnet-5-5
+          comment-pr: true
+          upload-results: true
+          exclude-directories: _trusted,node_modules,docs,src/Opten.Web/wwwroot/css,src/Opten.Web/SeedData
+          custom-security-scan-instructions: _trusted/.github/security-review-instructions.md
 
       - name: Create issues for findings
         if: steps.key.outputs.present == 'true' && hashFiles('claudecode-results.json') != ''

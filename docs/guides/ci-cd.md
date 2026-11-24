@@ -29,7 +29,11 @@ Angriffsfläche, feste Kategorien, Severity-Definitionen, Pflichtfelder, Out of 
   Empfehlung, Definition of Done
 - **Keine Duplikate:** Ein Fingerprint (Datei + Kategorie + Beschreibung, ohne Zeilennummer) steht im Body. Ist ein
   passendes Issue noch offen, kommt nur ein Kommentar „Found again in PR #…“ dazu.
-- Das Skript läuft aus dem **Base-Branch** (`_trusted/`), nie aus dem PR, weil es `issues: write` hat.
+- Das Skript **und die Review-Regeln** (`security-review-instructions.md`) kommen aus dem **Base-Branch**
+  (`_trusted/`), nie aus dem PR. Ein PR kann so weder seinen eigenen Review abschwächen noch Code mit `issues: write`
+  ausführen. Änderungen an den Regeln wirken deshalb erst ab dem PR *nach* ihrem Merge.
+- Drittanbieter-Actions mit Schreibrechten sind auf einen **Commit-SHA** gepinnt. `claude-code-security-review` hat
+  upstream keine Release-Tags: SHA nach Prüfung der Änderungen manuell anheben. `action-gh-release` hebt Dependabot an.
 
 Repository-Variablen (optional): `SECURITY_MIN_CONFIDENCE` (Standard `0.8`), `SECURITY_ISSUE_MIN_SEVERITY`
 (Standard `LOW`, z. B. `MEDIUM` für weniger Issues).
