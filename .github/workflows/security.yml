@@ -1,0 +1,108 @@
+name: Security
+
+on:
+  pull_request:
+  schedule:
+    - cron: "0 5 * * 1" # Mondays 05:00 UTC – secret scan of the whole history
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ai-security-review:
+    name: AI security review (Claude)
+    # Fork PRs get no secrets – skip instead of failing
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write # PR comments with the findings
+      issues: write # one issue per finding (labels: security, ai-review, severity:*)
+    steps:
+      - name: Check for API key
+        id: key
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::notice::ANTHROPIC_API_KEY is not configured – AI security review skipped (see docs/guides/ci-cd.md)"
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v7
+        if: steps.key.outputs.present == 'true'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 2
+
+      # Review rules and the issue script come from the base branch, never from the PR under review:
+      # a PR must not be able to weaken its own review or run code with issues:write.
+      - name: Checkout trusted rules and scripts (base branch)
+        if: steps.key.outputs.present == 'true'
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: _trusted
+          sparse-checkout: |
+            .github/scripts
+            .github/security-review-instructions.md
+          sparse-checkout-cone-mode: false
+
+      - name: Claude Code security review
+        id: review
+        if: steps.key.outputs.present == 'true'
+        uses: anthropics/claude-code-security-review@0c6a49f1fa56a1d472575da86a94dbc1edb78eda # main @ 2026-11-24 – no release tags upstream, bump the SHA manually after review
+        with:
+          claude-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude-model: claude-sonnet-5-5
+          comment-pr: true
+          upload-results: true
+          exclude-directories: _trusted,node_modules,docs,src/UmbracoAI.Web/wwwroot/css,src/UmbracoAI.Web/SeedData
+          custom-security-scan-instructions: _trusted/.github/security-review-instructions.md
+
+      - name: Create issues for findings
+        if: steps.key.outputs.present == 'true' && hashFiles('claudecode-results.json') != ''
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
+          MIN_CONFIDENCE: ${{ vars.SECURITY_MIN_CONFIDENCE || '0.8' }}
+          MIN_SEVERITY: ${{ vars.SECURITY_ISSUE_MIN_SEVERITY || 'LOW' }}
+        run: node _trusted/.github/scripts/create-security-issues.mjs claudecode-results.json
+
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        run: |
+          docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:latest \
+            git /repo --redact --verbose --config /repo/.gitleaks.toml
+
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/dependency-review-action@v5
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure

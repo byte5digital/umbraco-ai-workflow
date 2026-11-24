@@ -1,0 +1,42 @@
+@inherits UmbracoViewPage
+@{
+    string culture = ViewExtensions.CurrentCulture();
+    IPublishedContent home = Model.Root();
+    var site = (SiteContext)ViewData["Site"]!;
+    IPublishedContent? searchPage = home.Children(culture)?.FirstOrDefault(c => c.ContentType.Alias == DocTypes.SearchPage);
+}
+<header class="border-b border-slate-200 bg-white">
+    <div class="container mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
+        <a href="@home.Url(culture)" class="text-xl font-bold text-brand-800">@site.SiteName</a>
+        <nav aria-label="@Umbraco.Ui(UiTexts.MainNavigation)">
+            <ul class="flex flex-wrap items-center gap-6">
+                @foreach (var item in home.Navigation(Model, culture))
+                {
+                    <li>
+                        <a href="@item.Url" class="@(item.IsActive ? "font-semibold text-brand-700" : "text-slate-700 hover:text-brand-700")"
+                           aria-current="@(item.IsActive ? "page" : null)">@item.Name</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+        <div class="flex items-center gap-4">
+            @if (searchPage is not null)
+            {
+                <form action="@searchPage.Url(culture)" method="get" role="search" class="hidden md:block">
+                    <label class="sr-only" for="header-search">@Umbraco.Ui(UiTexts.Search)</label>
+                    <input id="header-search" name="q" type="search" minlength="2" placeholder="@Umbraco.Ui(UiTexts.Search)"
+                           class="w-40 rounded-md border border-slate-300 px-3 py-1.5 text-sm focus:border-brand-600 focus:outline-none" />
+                </form>
+            }
+            <ul class="flex gap-2 text-sm" aria-label="@Umbraco.Ui(UiTexts.Language)">
+                @foreach (SiteCulture other in Cultures.All.Where(c => Model.IsPublished(c.IsoCode)))
+                {
+                    <li>
+                        <a href="@Model.Url(other.IsoCode)" hreflang="@other.IsoCode" lang="@other.IsoCode"
+                           class="@(other.IsoCode == culture ? "font-semibold text-brand-700" : "text-slate-500 hover:text-brand-700")">@other.ShortLabel</a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</header>

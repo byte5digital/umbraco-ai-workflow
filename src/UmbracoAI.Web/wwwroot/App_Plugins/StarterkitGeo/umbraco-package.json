@@ -1,0 +1,20 @@
+{
+  "name": "Starterkit GEO",
+  "id": "Starterkit.Geo",
+  "version": "1.0.0",
+  "allowTelemetry": false,
+  "extensions": [
+    {
+      "type": "propertyEditorUi",
+      "alias": "Starterkit.PropertyEditorUi.LlmsPreview",
+      "name": "Starterkit llms.txt & Markdown Preview",
+      "element": "/App_Plugins/StarterkitGeo/llms-preview.js",
+      "meta": {
+        "label": "llms.txt- & Markdown-Vorschau",
+        "icon": "icon-lightbulb-active",
+        "group": "common",
+        "propertyEditorSchemaAlias": "Umbraco.Label"
+      }
+    }
+  ]
+}

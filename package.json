@@ -1,0 +1,19 @@
+{
+  "name": "umbraco-ai-starterkit",
+  "private": true,
+  "description": "Frontend tooling (Tailwind CSS) and git hooks of the Umbraco AI Starterkit",
+  "scripts": {
+    "build:css": "tailwindcss -i src/UmbracoAI.Web/Styles/site.css -o src/UmbracoAI.Web/wwwroot/css/site.css --minify",
+    "watch:css": "tailwindcss -i src/UmbracoAI.Web/Styles/site.css -o src/UmbracoAI.Web/wwwroot/css/site.css --watch",
+    "hooks:install": "git config core.hooksPath .githooks",
+    "prepare": "git config core.hooksPath .githooks || true"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.0",
+    "@tailwindcss/typography": "^0.5.16",
+    "tailwindcss": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

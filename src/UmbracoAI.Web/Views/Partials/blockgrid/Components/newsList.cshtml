@@ -1,0 +1,32 @@
+@inherits UmbracoViewPage<BlockGridItem>
+@{
+    IPublishedElement c = Model.Content;
+    string culture = ViewExtensions.CurrentCulture();
+    IPublishedContent? root = c.Value<IPublishedContent>(Props.NewsRoot);
+    int count = c.Value<int>(Props.Count) is > 0 and var n ? n : 3;
+    var articles = (root?.Children(culture) ?? [])
+        .Where(a => a.ContentType.Alias == DocTypes.NewsArticle && a.IsPublished(culture))
+        .OrderByDescending(a => a.Value<DateTime>(Props.PublishDate))
+        .Take(count)
+        .ToArray();
+}
+<section class="@Model.SectionClasses()">
+    <div class="container mx-auto max-w-6xl px-4">
+        <div class="flex items-baseline justify-between gap-4">
+            @if (c.Value<string>(Props.Headline) is { Length: > 0 } headline)
+            {
+                <h2 class="text-3xl font-bold tracking-tight">@headline</h2>
+            }
+            @if (root is not null)
+            {
+                <a class="font-semibold text-brand-700 hover:underline" href="@root.Url(culture)">@Umbraco.Ui(UiTexts.AllNews) →</a>
+            }
+        </div>
+        <div class="mt-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            @foreach (IPublishedContent article in articles)
+            {
+                @await Html.PartialAsync("site/newsCard", article)
+            }
+        </div>
+    </div>
+</section>

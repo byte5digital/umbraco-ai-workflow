@@ -1,0 +1,6 @@
+@inherits UmbracoViewPage<BlockGridItem>
+<section class="@Model.SectionClasses()">
+    <div class="prose prose-slate container mx-auto max-w-3xl px-4">
+        @Model.Content.Value(Props.Text)
+    </div>
+</section>

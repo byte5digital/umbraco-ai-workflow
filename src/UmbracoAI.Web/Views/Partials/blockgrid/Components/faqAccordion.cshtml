@@ -1,0 +1,25 @@
+@inherits UmbracoViewPage<BlockGridItem>
+@{
+    IPublishedElement c = Model.Content;
+    BlockListModel? items = c.Value<BlockListModel>(Props.Items);
+}
+@* The questions are also emitted as schema.org FAQPage data (StructuredDataBuilder) – GEO *@
+<section class="@Model.SectionClasses()">
+    <div class="container mx-auto max-w-3xl px-4">
+        @if (c.Value<string>(Props.Headline) is { Length: > 0 } headline)
+        {
+            <h2 class="text-3xl font-bold tracking-tight">@headline</h2>
+        }
+        <div class="mt-6 divide-y divide-slate-200 border-y border-slate-200">
+            @foreach (BlockListItem item in items ?? Enumerable.Empty<BlockListItem>())
+            {
+                <details class="group py-4">
+                    <summary class="cursor-pointer list-none font-semibold marker:hidden">
+                        <span class="flex items-center justify-between gap-4">@item.Content.Value(Props.Question)<span class="transition group-open:rotate-45" aria-hidden="true">+</span></span>
+                    </summary>
+                    <div class="prose prose-slate mt-3">@item.Content.Value(Props.Answer)</div>
+                </details>
+            }
+        </div>
+    </div>
+</section>

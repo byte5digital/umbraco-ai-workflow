@@ -1,0 +1,37 @@
+@using UmbracoAI.Web.Search
+@inherits UmbracoViewPage<SearchResultsModel>
+@if (Model.Query.Length == 0)
+{
+    return;
+}
+<div class="mt-8" aria-live="polite">
+    @if (Model.IsTooShort)
+    {
+        <p class="text-slate-600">@Umbraco.Ui(UiTexts.SearchTooShort)</p>
+    }
+    else if (Model.IsUnavailable)
+    {
+        <p class="text-red-700">@Umbraco.Ui(UiTexts.SearchUnavailable)</p>
+    }
+    else if (Model.Response is { Results.Count: 0 })
+    {
+        <p class="text-slate-600">@Umbraco.Ui(UiTexts.SearchNoResults)</p>
+    }
+    else if (Model.Response is { } response)
+    {
+        <h2 class="text-lg font-semibold">@Umbraco.Ui(UiTexts.SearchResultsFor) „@response.Query“</h2>
+        <ol class="mt-4 divide-y divide-slate-200">
+            @foreach (SiteSearchHit hit in response.Results)
+            {
+                <li class="py-4">
+                    <a class="text-xl font-semibold text-brand-700 hover:underline" href="@hit.Url">@hit.Title</a>
+                    @if (hit.Description is not null)
+                    {
+                        <p class="mt-1 text-slate-600">@hit.Description</p>
+                    }
+                    <p class="mt-1 text-xs uppercase tracking-wide text-slate-400">@string.Join(" · ", hit.MatchedBy)</p>
+                </li>
+            }
+        </ol>
+    }
+</div>

@@ -1,0 +1,27 @@
+/* Tailwind CSS v4 – compiled to wwwroot/css/site.css (npm run build:css / watch:css). */
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Classes are only generated when Tailwind finds them in these files. */
+@source "../Views";
+@source "../Site";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Brand palette – replace per project (used as bg-brand-700, text-brand-700 …). */
+  --color-brand-50: oklch(0.97 0.02 250);
+  --color-brand-100: oklch(0.93 0.04 250);
+  --color-brand-200: oklch(0.87 0.07 250);
+  --color-brand-600: oklch(0.55 0.17 255);
+  --color-brand-700: oklch(0.48 0.17 258);
+  --color-brand-800: oklch(0.40 0.14 260);
+  --color-brand-900: oklch(0.30 0.10 262);
+}
+
+/* Rich text inside brand-coloured sections stays readable. */
+.bg-brand-800 .prose {
+  --tw-prose-body: var(--color-white);
+  --tw-prose-headings: var(--color-white);
+  --tw-prose-links: var(--color-white);
+}

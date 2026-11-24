@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Post-commit: reminders only – never fails.
+changed="$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null || true)"
+
+if grep -qE 'src/UmbracoAI.Web/Seeding/Schema/' <<<"$changed"; then
+  printf '\033[33mℹ Content model changed: existing installations need a new seed step or a higher ISeedStep.Version (docs/guides/seeding.md).\033[0m\n'
+fi
+if grep -qE '(Directory\.Packages\.props|package\.json|docker/|\.github/workflows/)' <<<"$changed" && ! grep -q 'docs/adr/' <<<"$changed"; then
+  printf '\033[33mℹ Dependencies/infrastructure changed – worth an ADR? Use the /adr skill or .claude/skills/adr/new-adr.sh\033[0m\n'
+fi
+if grep -qE '\.env\.example' <<<"$changed"; then
+  printf '\033[33mℹ .env.example changed – update your local .env.\033[0m\n'
+fi
+exit 0

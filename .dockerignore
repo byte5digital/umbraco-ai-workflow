@@ -1,0 +1,14 @@
+.git/
+.github/
+.env
+.env.*
+!.env.example
+**/bin/
+**/obj/
+**/node_modules/
+**/umbraco/Data/
+**/umbraco/Logs/
+**/wwwroot/media/
+**/wwwroot/css/site.css
+docs/
+tests/

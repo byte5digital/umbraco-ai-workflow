@@ -1,0 +1,23 @@
+@inherits UmbracoViewPage<BlockGridItem>
+@{
+    IPublishedElement c = Model.Content;
+    string? imageUrl = c.ImageUrl(Props.Image, 1920, 800);
+    Link? link = c.Value<Link>(Props.Link);
+}
+<section class="relative overflow-hidden bg-brand-900 text-white">
+    @if (imageUrl is not null)
+    {
+        <img class="absolute inset-0 h-full w-full object-cover opacity-40" src="@imageUrl" alt="" fetchpriority="high" />
+    }
+    <div class="container relative mx-auto max-w-6xl px-4 py-24 md:py-32">
+        <h1 class="max-w-3xl text-4xl font-bold tracking-tight md:text-6xl">@c.Value(Props.Headline)</h1>
+        @if (c.Value<string>(Props.Text) is { Length: > 0 } text)
+        {
+            <p class="mt-6 max-w-2xl text-lg text-slate-100 md:text-xl">@text</p>
+        }
+        @if (link is not null)
+        {
+            <a href="@link.Url" target="@link.Target" class="mt-8 inline-block rounded-md bg-white px-6 py-3 font-semibold text-brand-800 hover:bg-slate-100">@link.Name</a>
+        }
+    </div>
+</section>

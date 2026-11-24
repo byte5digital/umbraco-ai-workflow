@@ -1,0 +1,35 @@
+# Local test environment: Umbraco with SQLite (data in a volume).
+#   cp .env.example .env        # once, then adjust
+#   docker compose --env-file .env -f docker/docker-compose.yml up --build
+# Site: http://localhost:${WEB_PORT:-8080}   Backoffice: http://localhost:${WEB_PORT:-8080}/umbraco
+# SQL Server instead of SQLite: add -f docker/docker-compose.sqlserver.yml
+name: umbraco-ai-starterkit
+
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: umbraco-ai-starterkit-web:local
+    env_file:
+      - path: ../.env
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      # Plain HTTP on localhost – backoffice login without TLS (only honoured in Development)
+      LocalDev__AllowHttpBackoffice: "true"
+      Umbraco__CMS__Global__UseHttps: "false"
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8080}:8080"
+    volumes:
+      - umbracoai-data:/app/umbraco/Data
+      - umbracoai-media:/app/wwwroot/media
+      - umbracoai-logs:/app/umbraco/Logs
+      - umbracoai-dataprotection:/home/app/.aspnet/DataProtection-Keys
+    restart: unless-stopped
+
+volumes:
+  umbracoai-data:
+  umbracoai-media:
+  umbracoai-logs:
+  umbracoai-dataprotection:

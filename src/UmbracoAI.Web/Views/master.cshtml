@@ -1,0 +1,29 @@
+﻿@inherits UmbracoViewPage
+@inject PageSeoService SeoService
+@{
+    Layout = null;
+    string culture = ViewExtensions.CurrentCulture();
+    IPublishedContent home = Model.Root();
+    SiteContext site = SiteResolver.For(home, Context.Request, culture);
+    PageSeo seo = SeoService.Build(Model, site);
+    ViewData["Site"] = site;
+}
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    @await Html.PartialAsync("site/seoHead", seo)
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
+</head>
+<body class="flex min-h-screen flex-col bg-white font-sans text-slate-800 antialiased">
+    <a class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2" href="#main">@Umbraco.Ui(UiTexts.SkipToContent)</a>
+    @await Html.PartialAsync("site/header", Model)
+    <main id="main" class="flex-1">
+        @RenderBody()
+    </main>
+    @await Html.PartialAsync("site/footer", site)
+</body>
+</html>

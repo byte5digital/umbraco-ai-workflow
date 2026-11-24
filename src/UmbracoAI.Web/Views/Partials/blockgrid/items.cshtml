@@ -1,0 +1,11 @@
+@inherits UmbracoViewPage<IEnumerable<BlockGridItem>>
+@{
+    if (Model?.Any() != true) { return; }
+}
+@foreach (BlockGridItem item in Model)
+{
+    string partial = "blockgrid/Components/" + item.Content.ContentType.Alias;
+    <div data-content-element-type-alias="@item.Content.ContentType.Alias" data-element-key="@item.ContentKey">
+        @await Html.PartialAsync(partial, item)
+    </div>
+}

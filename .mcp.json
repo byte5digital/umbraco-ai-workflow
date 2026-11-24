@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "umbraco": {
+      "command": "bash",
+      "args": ["scripts/umbraco-mcp.sh"]
+    }
+  }
+}
