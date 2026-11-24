@@ -12,7 +12,7 @@ COPY src/Opten.Web/Site ./src/Opten.Web/Site
 RUN npm run build:css
 
 # 2) .NET build & publish
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 WORKDIR /src
 COPY global.json Directory.Build.props Directory.Packages.props .editorconfig ./
 COPY src/Opten.Web/Opten.Web.csproj ./src/Opten.Web/
