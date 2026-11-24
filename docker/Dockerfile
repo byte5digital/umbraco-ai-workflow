@@ -2,7 +2,7 @@
 # Build context: repository root (see docker/docker-compose.yml)
 
 # 1) Tailwind CSS
-FROM node:22-alpine AS css
+FROM node:26-alpine AS css
 WORKDIR /src
 COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts
