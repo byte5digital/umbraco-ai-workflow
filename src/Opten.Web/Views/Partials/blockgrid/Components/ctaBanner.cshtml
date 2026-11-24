@@ -1,0 +1,20 @@
+@inherits UmbracoViewPage<BlockGridItem>
+@{
+    IPublishedElement c = Model.Content;
+    Link? link = c.Value<Link>(Props.Link);
+}
+<section class="@Model.SectionClasses()">
+    <div class="container mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-3xl font-bold tracking-tight">@c.Value(Props.Headline)</h2>
+            @if (c.Value<string>(Props.Text) is { Length: > 0 } text)
+            {
+                <p class="mt-2 text-lg opacity-90">@text</p>
+            }
+        </div>
+        @if (link is not null)
+        {
+            <a href="@link.Url" target="@link.Target" class="rounded-md bg-white px-6 py-3 font-semibold text-brand-800 hover:bg-slate-100">@link.Name</a>
+        }
+    </div>
+</section>

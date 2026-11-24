@@ -1,0 +1,5 @@
+﻿@inherits UmbracoViewPage
+@{
+    Layout = "master.cshtml";
+}
+@await Html.GetBlockGridHtmlAsync(Model, Props.MainContent)

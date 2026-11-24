@@ -1,0 +1,7 @@
+@inherits UmbracoViewPage<BlockGridModel>
+@{
+    if (Model?.Any() != true) { return; }
+}
+<div class="umb-block-grid" data-grid-columns="@(Model.GridColumns?.ToString() ?? "12")">
+    @await Html.PartialAsync("blockgrid/items", Model)
+</div>

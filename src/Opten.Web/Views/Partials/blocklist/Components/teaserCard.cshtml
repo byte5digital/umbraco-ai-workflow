@@ -1,0 +1,20 @@
+@inherits UmbracoViewPage<BlockListItem>
+@{
+    IPublishedElement c = Model.Content;
+    string? imageUrl = c.ImageUrl(Props.Image, 640, 360);
+    Link? link = c.Value<Link>(Props.Link);
+}
+<article class="flex flex-col overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-800 shadow-sm">
+    @if (imageUrl is not null)
+    {
+        <img class="aspect-video w-full object-cover" src="@imageUrl" alt="" loading="lazy" />
+    }
+    <div class="flex flex-1 flex-col p-6">
+        <h3 class="text-xl font-semibold text-slate-900">@c.Value(Props.Headline)</h3>
+        <p class="mt-2 flex-1 text-slate-600">@c.Value(Props.Text)</p>
+        @if (link is not null)
+        {
+            <a href="@link.Url" target="@link.Target" class="mt-4 font-semibold text-brand-700 hover:underline">@link.Name →</a>
+        }
+    </div>
+</article>

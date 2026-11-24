@@ -1,0 +1,27 @@
+﻿@inherits UmbracoViewPage
+@{
+    Layout = "master.cshtml";
+    string culture = ViewExtensions.CurrentCulture();
+    DateTime published = Model.Value<DateTime>(Props.PublishDate);
+    string? imageUrl = Model.ImageUrl(Props.Image, 1200, 600);
+}
+@await Html.PartialAsync("site/breadcrumb", Model)
+<article>
+    <header class="container mx-auto max-w-3xl px-4 pt-8">
+        @if (published > DateTime.MinValue)
+        {
+            <time class="text-sm text-slate-500" datetime="@published.ToString("yyyy-MM-dd")">@published.ToString("d")</time>
+        }
+        <h1 class="mt-2 text-4xl font-bold tracking-tight text-slate-900">@Model.Name(culture)</h1>
+        <p class="mt-4 text-lg text-slate-600">@Model.Value(Props.TeaserText, culture)</p>
+        @if (Model.Value<string>(Props.Author) is { Length: > 0 } author)
+        {
+            <p class="mt-2 text-sm text-slate-500">@author</p>
+        }
+    </header>
+    @if (imageUrl is not null)
+    {
+        <img class="container mx-auto mt-8 max-w-5xl rounded-lg px-4" src="@imageUrl" alt="" />
+    }
+    @await Html.GetBlockGridHtmlAsync(Model, Props.MainContent)
+</article>

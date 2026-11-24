@@ -1,0 +1,15 @@
+@inherits UmbracoViewPage
+@{
+    string culture = ViewExtensions.CurrentCulture();
+    var ancestors = Model.Ancestors().Reverse().ToArray();
+    if (ancestors.Length == 0) { return; }
+}
+<nav aria-label="@Umbraco.Ui(UiTexts.Breadcrumb)" class="container mx-auto max-w-6xl px-4 pt-6 text-sm text-slate-500">
+    <ol class="flex flex-wrap gap-2">
+        @foreach (IPublishedContent ancestor in ancestors)
+        {
+            <li><a class="hover:text-brand-700" href="@ancestor.Url(culture)">@ancestor.Name(culture)</a> <span aria-hidden="true">/</span></li>
+        }
+        <li aria-current="page" class="text-slate-700">@Model.Name(culture)</li>
+    </ol>
+</nav>

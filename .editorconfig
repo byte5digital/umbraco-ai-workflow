@@ -1,0 +1,32 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml,css,js,mjs,cjs,md,props,targets,csproj,slnx}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_var_for_built_in_types = false:none
+csharp_prefer_braces = true:warning
+dotnet_sort_system_directives_first = true
+
+# Logging performance rules – structured logging via ILogger templates is sufficient here
+dotnet_diagnostic.CA1848.severity = none
+dotnet_diagnostic.CA1873.severity = none
+# Culture-specific formatting is intentional in views/seeding (dates are formatted with explicit patterns)
+dotnet_diagnostic.CA1305.severity = suggestion
+dotnet_diagnostic.CA1859.severity = suggestion
+
+[tests/**.cs]
+# Test names use Method_Scenario_Expectation
+dotnet_diagnostic.CA1707.severity = none

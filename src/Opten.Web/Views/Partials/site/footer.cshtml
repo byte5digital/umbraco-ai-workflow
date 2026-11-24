@@ -1,0 +1,17 @@
+@model Opten.Web.Seo.SiteContext
+@{
+    IEnumerable<Link> links = Model.Home.Value<IEnumerable<Link>>(Props.FooterLinks, Model.Culture) ?? [];
+    IEnumerable<Link> social = Model.Home.Value<IEnumerable<Link>>(Props.SocialLinks) ?? [];
+}
+<footer class="mt-16 bg-slate-900 text-slate-300">
+    <div class="container mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 md:flex-row md:justify-between">
+        <p>&copy; @DateTime.Now.Year @Model.SiteName</p>
+        <ul class="flex flex-wrap gap-6">
+            @foreach (Link link in links.Concat(social))
+            {
+                <li><a class="hover:text-white" href="@link.Url" target="@link.Target" rel="@(link.Target == "_blank" ? "noopener" : null)">@link.Name</a></li>
+            }
+            <li><a class="hover:text-white" href="@Model.LlmsUrl(full: false)">llms.txt</a></li>
+        </ul>
+    </div>
+</footer>

@@ -1,0 +1,19 @@
+﻿@inherits UmbracoViewPage
+@{
+    Layout = "master.cshtml";
+    string culture = ViewExtensions.CurrentCulture();
+    var articles = (Model.Children(culture) ?? [])
+        .Where(a => a.ContentType.Alias == DocTypes.NewsArticle && a.IsPublished(culture))
+        .OrderByDescending(a => a.Value<DateTime>(Props.PublishDate))
+        .ToArray();
+}
+@await Html.PartialAsync("site/breadcrumb", Model)
+@await Html.GetBlockGridHtmlAsync(Model, Props.MainContent)
+<section class="container mx-auto max-w-6xl px-4 py-12">
+    <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        @foreach (IPublishedContent article in articles)
+        {
+            @await Html.PartialAsync("site/newsCard", article)
+        }
+    </div>
+</section>

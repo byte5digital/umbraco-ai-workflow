@@ -1,0 +1,42 @@
+@model Opten.Web.Seo.PageSeo
+<title>@Model.Title</title>
+@if (!string.IsNullOrWhiteSpace(Model.Description))
+{
+    <meta name="description" content="@Model.Description" />
+}
+<meta name="robots" content="@Model.Robots" />
+<link rel="canonical" href="@Model.CanonicalUrl" />
+@foreach (Opten.Web.Seo.HreflangLink alternate in Model.Alternates)
+{
+    <link rel="alternate" hreflang="@alternate.Hreflang" href="@alternate.Url" />
+}
+@* GEO / agent discovery: Markdown twin of this page and the llms.txt index *@
+@if (Model.MarkdownUrl is not null)
+{
+    <link rel="alternate" type="text/markdown" href="@Model.MarkdownUrl" title="Markdown" />
+}
+<link rel="help" type="text/plain" href="@Model.LlmsUrl" title="llms.txt" />
+
+<meta property="og:site_name" content="@Model.SiteName" />
+<meta property="og:type" content="@Model.OgType" />
+<meta property="og:title" content="@Model.OgTitle" />
+@if (!string.IsNullOrWhiteSpace(Model.OgDescription))
+{
+    <meta property="og:description" content="@Model.OgDescription" />
+}
+<meta property="og:url" content="@Model.CanonicalUrl" />
+<meta property="og:locale" content="@Model.OgLocale" />
+@foreach (string locale in Model.OgAlternateLocales)
+{
+    <meta property="og:locale:alternate" content="@locale" />
+}
+<meta name="twitter:card" content="@(Model.OgImageUrl is null ? "summary" : "summary_large_image")" />
+@if (Model.OgImageUrl is not null)
+{
+    <meta property="og:image" content="@Model.OgImageUrl" />
+    <meta property="og:image:width" content="@Opten.Web.Seo.PageSeoService.ShareImageWidth" />
+    <meta property="og:image:height" content="@Opten.Web.Seo.PageSeoService.ShareImageHeight" />
+    <meta name="twitter:image" content="@Model.OgImageUrl" />
+}
+@* "!" opts out of the script tag helper, which would HTML-encode the "+" in the type attribute *@
+<!script type="application/ld+json">@Html.Raw(Model.JsonLd)</!script>

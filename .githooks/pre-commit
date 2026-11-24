@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Pre-commit: block secrets, check formatting of staged C# files, validate JSON, AI security review of the diff.
+# Skip in emergencies: --no-verify
+set -euo pipefail
+
+red() { printf '\033[31m%s\033[0m\n' "$*"; }
+fail=0
+
+staged="$(git diff --cached --name-only --diff-filter=ACMR)"
+[[ -z "$staged" ]] && exit 0
+
+# 1) Never commit .env files (only .env.example)
+if grep -E '(^|/)\.env(\..+)?$' <<<"$staged" | grep -vE '\.env\.example$' >/dev/null; then
+  red "✖ .env files must not be committed (use .env.example for placeholders)."
+  fail=1
+fi
+
+# 2) Obvious secrets in the staged diff
+patterns='(sk-[A-Za-z0-9_-]{20,}|sk-ant-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{30,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|Password=[^;"$]{6,};)'
+if git diff --cached -U0 -- . ':(exclude).env.example' ':(exclude)package-lock.json' | grep -E '^\+' | grep -vE 'ChangeMe!' | grep -Eq "$patterns"; then
+  red "✖ Possible secret in staged changes. Move it to .env / user secrets."
+  git diff --cached -U0 | grep -E '^\+' | grep -En "$patterns" | sed -E 's/(.{0,12}).*/\1…/' | head -5
+  fail=1
+fi
+
+# 3) C# formatting (only staged files, fast)
+cs_files="$(grep -E '\.cs$' <<<"$staged" || true)"
+if [[ -n "$cs_files" ]] && command -v dotnet >/dev/null && ! dotnet --version >/dev/null 2>&1; then
+  printf '\033[33m⚠ dotnet cannot resolve the SDK from global.json (.NET 10 required) – C# format check skipped. CI checks it.\033[0m\n'
+elif [[ -n "$cs_files" ]] && command -v dotnet >/dev/null; then
+  # shellcheck disable=SC2086
+  if ! dotnet format Opten.Umbraco.slnx --verify-no-changes --no-restore --include $cs_files >/dev/null 2>&1; then
+    red "✖ C# formatting issues. Run: dotnet format Opten.Umbraco.slnx --include $(tr '\n' ' ' <<<"$cs_files")"
+    fail=1
+  fi
+fi
+
+# 4) JSON syntax
+while IFS= read -r file; do
+  [[ -f "$file" ]] || continue
+  if ! node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" "$file" 2>/dev/null; then
+    red "✖ Invalid JSON: $file"
+    fail=1
+  fi
+done < <(grep -E '\.json$' <<<"$staged" | grep -vE '(appsettings|launchSettings).*\.json$|tsconfig' || true)
+
+# 5) AI security review of the staged diff (Claude Code CLI). HIGH blocks, MEDIUM/LOW warn.
+#    Only runs when the cheap checks above passed. Opt-out: SKIP_AI_SECURITY=1 or git config opten.aiSecurity off
+if [[ $fail -eq 0 ]] && command -v node >/dev/null; then
+  node "$(git rev-parse --show-toplevel)/scripts/ai-security-check.mjs" || fail=1
+fi
+
+exit $fail

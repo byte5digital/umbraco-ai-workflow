@@ -1,0 +1,35 @@
+# Local test environment: Umbraco with SQLite (data in a volume).
+#   cp .env.example .env        # once, then adjust
+#   docker compose --env-file .env -f docker/docker-compose.yml up --build
+# Site: http://localhost:${WEB_PORT:-8080}   Backoffice: http://localhost:${WEB_PORT:-8080}/umbraco
+# SQL Server instead of SQLite: add -f docker/docker-compose.sqlserver.yml
+name: opten-umbraco
+
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: opten-umbraco-web:local
+    env_file:
+      - path: ../.env
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      # Plain HTTP on localhost – backoffice login without TLS (only honoured in Development)
+      LocalDev__AllowHttpBackoffice: "true"
+      Umbraco__CMS__Global__UseHttps: "false"
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8080}:8080"
+    volumes:
+      - opten-data:/app/umbraco/Data
+      - opten-media:/app/wwwroot/media
+      - opten-logs:/app/umbraco/Logs
+      - opten-dataprotection:/home/app/.aspnet/DataProtection-Keys
+    restart: unless-stopped
+
+volumes:
+  opten-data:
+  opten-media:
+  opten-logs:
+  opten-dataprotection:

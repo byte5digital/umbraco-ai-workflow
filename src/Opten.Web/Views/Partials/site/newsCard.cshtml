@@ -1,0 +1,23 @@
+@inherits UmbracoViewPage
+@{
+    string culture = ViewExtensions.CurrentCulture();
+    DateTime published = Model.Value<DateTime>(Props.PublishDate);
+    string? imageUrl = Model.ImageUrl(Props.Image, 640, 360);
+}
+<article class="flex flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+    @if (imageUrl is not null)
+    {
+        <img class="aspect-video w-full object-cover" src="@imageUrl" alt="" loading="lazy" />
+    }
+    <div class="flex flex-1 flex-col p-6">
+        @if (published > DateTime.MinValue)
+        {
+            <time class="text-sm text-slate-500" datetime="@published.ToString("yyyy-MM-dd")">@published.ToString("d")</time>
+        }
+        <h3 class="mt-2 text-xl font-semibold text-slate-900">
+            <a class="hover:text-brand-700" href="@Model.Url(culture)">@Model.Name(culture)</a>
+        </h3>
+        <p class="mt-2 flex-1 text-slate-600">@Model.Value(Props.TeaserText, culture)</p>
+        <a class="mt-4 font-semibold text-brand-700 hover:underline" href="@Model.Url(culture)">@Umbraco.Ui(UiTexts.ReadMore) →</a>
+    </div>
+</article>

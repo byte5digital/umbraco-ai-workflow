@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Enforces Conventional Commits: type(scope)!: description
+set -euo pipefail
+msg="$(head -n1 "$1")"
+pattern='^(feat|fix|refactor|docs|test|chore|perf|ci|build|style|revert)(\([a-z0-9._/-]+\))?!?: .{3,}'
+if [[ "$msg" =~ ^(Merge|Revert|fixup!|squash!) ]] || [[ "$msg" =~ $pattern ]]; then
+  exit 0
+fi
+printf '\033[31m✖ Commit message must follow Conventional Commits, e.g. "feat(search): add facet filter"\033[0m\n'
+printf '  Got: %s\n' "$msg"
+exit 1

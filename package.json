@@ -1,0 +1,19 @@
+{
+  "name": "opten-umbraco",
+  "private": true,
+  "description": "Frontend tooling (Tailwind CSS) and git hooks of the Opten Umbraco starter kit",
+  "scripts": {
+    "build:css": "tailwindcss -i src/Opten.Web/Styles/site.css -o src/Opten.Web/wwwroot/css/site.css --minify",
+    "watch:css": "tailwindcss -i src/Opten.Web/Styles/site.css -o src/Opten.Web/wwwroot/css/site.css --watch",
+    "hooks:install": "git config core.hooksPath .githooks",
+    "prepare": "git config core.hooksPath .githooks || true"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.0",
+    "@tailwindcss/typography": "^0.5.16",
+    "tailwindcss": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
