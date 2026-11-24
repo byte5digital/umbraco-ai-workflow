@@ -9,10 +9,10 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Umbraco CMS -->
-    <PackageVersion Include="Umbraco.Cms" Version="18.3.1" />
-    <PackageVersion Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="18.3.1" />
+    <PackageVersion Include="Umbraco.Cms" Version="18.3.2" />
+    <PackageVersion Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="18.3.2" />
     <!-- Umbraco AI (official, Umbraco HQ): core, OpenAI provider, prompt actions, agents/Copilot, semantic search -->
-    <PackageVersion Include="Umbraco.AI" Version="18.8.1" />
+    <PackageVersion Include="Umbraco.AI" Version="18.8.2" />
     <PackageVersion Include="Umbraco.AI.OpenAI" Version="18.3.3" />
     <PackageVersion Include="Umbraco.AI.Prompt" Version="18.4.2" />
     <PackageVersion Include="Umbraco.AI.Agent" Version="18.4.4" />
